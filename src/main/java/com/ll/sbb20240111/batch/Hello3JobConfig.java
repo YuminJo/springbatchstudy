@@ -4,8 +4,9 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -20,12 +21,19 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class Hello3JobConfig {
 	@Bean
-	public Job hello3Job(JobRepository jobRepository, Step hello3Step1, Step hello3Step2, Step hello3Step3) {
+	public Job hello3Job(JobRepository jobRepository, Flow hello3Flow, Step hello3Step3) {
 		return new JobBuilder("hello3Job", jobRepository)
+			.start(hello3Flow)
+			.next(hello3Step3)
+			.end()
+			.build();
+	}
+
+	@Bean
+	public Flow hello3Flow(Step hello3Step1, Step hello3Step2) {
+		return new FlowBuilder<Flow>("hello3Flow")
 			.start(hello3Step1)
 			.next(hello3Step2)
-			.next(hello3Step3)
-			.incrementer(new RunIdIncrementer())
 			.build();
 	}
 
